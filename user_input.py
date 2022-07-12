@@ -43,17 +43,17 @@ while True:
     if sub_invalid(sub):
         print("this subreddit does not exist, please enter again")
         continue
-    print(sub)
+    #print(sub)
     my_string = str(input('Please enter the start date: \nEnter date(yyyy-mm-dd): '))
     start_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
-    print(start_date)
+    #print(start_date)
     my_string = str(input('Please enter the end date: \nEnter date(yyyy-mm-dd): '))
     end_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
-    print(end_date)
+    #print(end_date)
     Schema = {
         "sub_reddit": sub,
         "start_date": str(start_date),
         "end_date": str(end_date)
     }
     userProducer.produce(topic, value=json.dumps(Schema))
-    print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
+    #print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
