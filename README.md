@@ -1,2 +1,5 @@
-# RedditSearchMicroService
-An application that improves reddit search bar enriched by a NLP (spacy) package using micro-services realized by Kafa 
+# Semanticanlysis_Kafka_MicroService
+Using Reddit thread text for semantic analysis:
+Using PRAW/PSAW for api calls
+Creating micro_services using confluent-kafka
+Building multi-consumer/producer application
