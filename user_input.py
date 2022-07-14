@@ -1,4 +1,5 @@
 import json
+from IPython.utils.py3compat import execfile
 from confluent_kafka import Producer
 import ccloud_lib
 from datetime import datetime
@@ -52,8 +53,8 @@ while True:
     #print(end_date)
     Schema = {
         "sub_reddit": sub,
-        "start_date": str(start_date),
-        "end_date": str(end_date)
+        "start_date": str(int(start_date)),
+        "end_date": str(int(end_date))
     }
     userProducer.produce(topic, value=json.dumps(Schema))
     #print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
