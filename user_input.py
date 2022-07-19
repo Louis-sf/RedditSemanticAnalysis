@@ -38,23 +38,25 @@ def sub_invalid(sub):
         invalid = True
     return invalid
 
-
-while True:
-    sub = input("Please choose a subreddit you would like to analyze, don't include /r in the beginning\n")
-    if sub_invalid(sub):
-        print("this subreddit does not exist, please enter again")
-        continue
-    #print(sub)
-    my_string = str(input('Please enter the start date: \nEnter date(yyyy-mm-dd): '))
-    start_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
-    #print(start_date)
-    my_string = str(input('Please enter the end date: \nEnter date(yyyy-mm-dd): '))
-    end_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
-    #print(end_date)
-    Schema = {
-        "sub_reddit": sub,
-        "start_date": str(int(start_date)),
-        "end_date": str(int(end_date))
-    }
-    userProducer.produce(topic, value=json.dumps(Schema))
-    #print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
+try:
+    while True:
+        try:
+            sub = input("Please choose a subreddit you would like to analyze, don't include /r in the beginning\n")
+            if sub_invalid(sub):
+                print("this subreddit does not exist, please enter again")
+                continue
+            my_string = str(input('Please enter the start date: \nEnter date(yyyy-mm-dd): '))
+            start_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
+            my_string = str(input('Please enter the end date: \nEnter date(yyyy-mm-dd): '))
+            end_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
+            Schema = {
+                "sub_reddit": sub,
+                "start_date": str(int(start_date)),
+                "end_date": str(int(end_date))
+            }
+            userProducer.produce(topic, value=json.dumps(Schema))
+            #print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
+        except ValueError:
+            continue
+except KeyboardInterrupt:
+    pass

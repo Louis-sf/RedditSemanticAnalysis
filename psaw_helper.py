@@ -16,10 +16,3 @@ def get_pushshift_data(after, before, sub):
     #return the data element which contains all the submissions data
     return data['data']
 
-# count = 0
-# subm = get_pushshift_data("1498931701", "", "gaming")
-# for record in subm:
-#     print(record['selftext'], datetime.fromtimestamp(record['created_utc']), "\n")
-    #print(record.keys())
-    # count+=1
-    # print(count)

@@ -38,13 +38,14 @@ consumer_conf['enable.auto.commit'] = 'false'
 api_Consumer = Consumer(conf)
 api_Consumer.subscribe([consumer_topic])
 
-################# Producer Config #####################
+############## Producer Config #####################
 producer_topic = "reddit_raw_data"
 config_file = "python.config"
 conf = ccloud_lib.read_ccloud_config(config_file)
 producer_conf = ccloud_lib.pop_schema_registry_params_from_config(conf)
 raw_producer = Producer(producer_conf)
 
+###
 try:
     while True:
         msg = api_Consumer.poll(1.0)
@@ -55,27 +56,30 @@ try:
             print('error: {}'.format(msg.error()))
             continue
         else:
-            # Check for Kafka message
-            record_value = msg.value()
-            data = json.loads(record_value)
-            subreddit = data['sub_reddit']
-            start_epoch = int(data['start_date'])
-            end_epoch = int(data['end_date'])
-            #print("the enriched message has key{}, and value{}".format(record_key, record_value))
-            for record in psaw_helper.get_pushshift_data(start_epoch, end_epoch, subreddit):
-                text = record['title'] + "**&*" + record['selftext']
-                sub = record['subreddit']
-                url = record['url']
-                id =record['id']
-                Schema = {
-                    'id': id,
-                    'title_text': text,
-                    'sub_reddit': sub,
-                    'url': url
-                }
-                to_be_recorded = json.dumps(Schema)
-                raw_producer.produce(topic = producer_topic, key = id, value = to_be_recorded)
-                print("record", record['title'], datetime.fromtimestamp(record['created_utc']), "appended", "\n")
-            raw_producer.flush()
+            try:
+                # Check for Kafka message
+                record_value = msg.value()
+                data = json.loads(record_value)
+                subreddit = data['sub_reddit']
+                start_epoch = int(data['start_date'])
+                end_epoch = int(data['end_date'])
+                #print("the enriched message has key{}, and value{}".format(record_key, record_value))
+                for record in psaw_helper.get_pushshift_data(start_epoch, end_epoch, subreddit):
+                    text = record['title'] + "**&*" + record['selftext']
+                    sub = record['subreddit']
+                    url = record['url']
+                    id =record['id']
+                    Schema = {
+                        'id': id,
+                        'title_text': text,
+                        'sub_reddit': sub,
+                        'url': url
+                    }
+                    to_be_recorded = json.dumps(Schema)
+                    raw_producer.produce(topic = producer_topic, key = id, value = to_be_recorded)
+                    print("record", record['title'], datetime.fromtimestamp(record['created_utc']), "appended", "\n")
+                raw_producer.flush()
+            except ValueError:
+                continue
 except KeyboardInterrupt:
     pass
