@@ -1,11 +1,12 @@
 import json
-from IPython.utils.py3compat import execfile
+#import reddit_api_poller
 from confluent_kafka import Producer
 import ccloud_lib
 from datetime import datetime
 import requests
 import praw
 from prawcore import NotFound
+
 
 ################PRAW CONFIG########################
 client_key = "34p9yVEI4vWN7YgOLv_phA"
@@ -55,8 +56,10 @@ try:
                 "end_date": str(int(end_date))
             }
             userProducer.produce(topic, value=json.dumps(Schema))
+            #reddit_api_poller.getredditrawthread()
             #print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
         except ValueError:
+            print("Please make sure the input format is correct")
             continue
 except KeyboardInterrupt:
-    pass
+    print("Program ended")
