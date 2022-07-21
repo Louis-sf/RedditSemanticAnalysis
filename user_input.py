@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 import praw
 from prawcore import NotFound
-
+import uuid
 
 ################PRAW CONFIG########################
 client_key = "34p9yVEI4vWN7YgOLv_phA"
@@ -38,7 +38,9 @@ def sub_invalid(sub):
     except NotFound:
         invalid = True
     return invalid
-
+def id_generator(sub,start_date,end_date):
+    id = sub + start_date + end_date
+    return id
 try:
     while True:
         try:
@@ -50,14 +52,15 @@ try:
             start_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
             my_string = str(input('Please enter the end date: \nEnter date(yyyy-mm-dd): '))
             end_date = datetime.strptime(my_string, "%Y-%m-%d").timestamp()
+            request_id = str(uuid.uuid4())
+
             Schema = {
+                "request_id": request_id,
                 "sub_reddit": sub,
                 "start_date": str(int(start_date)),
                 "end_date": str(int(end_date))
             }
             userProducer.produce(topic, value=json.dumps(Schema))
-            #reddit_api_poller.getredditrawthread()
-            #print("tuple <" + sub, ", ", start_date, ", ", end_date, "> appended to user_input topic")
         except ValueError:
             print("Please make sure the input format is correct")
             continue

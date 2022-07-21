@@ -19,7 +19,7 @@ sentiment_consumer = Consumer(conf)
 sentiment_consumer.subscribe([consumer_topic])
 
 ############## Producer Config #####################
-producer_topic = "reddit_scored_data"
+producer_topic = "scored_thread"
 config_file = "python.config"
 conf = ccloud_lib.read_ccloud_config(config_file)
 producer_conf = ccloud_lib.pop_schema_registry_params_from_config(conf)
@@ -43,11 +43,13 @@ try:
             id = data['id']
             title_text = data['title_text']
             sub_reddit = data['sub_reddit']
+            request_id = data['request_id']
             url = data['url']
             # print("the enriched message has key{}, and value{}".format(record_key, record_value))
             score = sia.polarity_scores(title_text)
             Schema = {
-                'id' : id,
+                'id': id,
+                'request_id': request_id,
                 'title_text': title_text,
                 'sub_reddit': sub_reddit,
                 'url': url,

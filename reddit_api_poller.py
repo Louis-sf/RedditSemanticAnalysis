@@ -49,41 +49,49 @@ producer_conf = ccloud_lib.pop_schema_registry_params_from_config(conf)
 raw_producer = Producer(producer_conf)
 
 ####################def############
+raw_producer.flush()
 #def getredditrawthread():
 try:
     while True:
-        msg = api_Consumer.poll(1.0)
-        if msg is None:
-            print("Waiting for message or event/error in poll()")
-            continue
-        elif msg.error():
-            print('error: {}'.format(msg.error()))
-            break
-        else:
-            # Check for Kafka message
-            record_value = msg.value()
-            data = json.loads(record_value)
-            subreddit = data['sub_reddit']
-            start_epoch = int(data['start_date'])
-            end_epoch = int(data['end_date'])
-            #print("the enriched message has key{}, and value{}".format(record_key, record_value))
-            for record in psaw_helper.get_pushshift_data(start_epoch, end_epoch, subreddit):
-                text = record['title'] + "**&*" + record['selftext']
-                sub = record['subreddit']
-                url = record['url']
-                id =record['id']
-                Schema = {
-                    'id': id,
-                    'title_text': text,
-                    'sub_reddit': sub,
-                    'url': url
-                }
-                to_be_recorded = json.dumps(Schema)
-                raw_producer.produce(topic = producer_topic, key = id, value = to_be_recorded)
-                print("record", record['title'], datetime.fromtimestamp(record['created_utc']), "appended", "\n")
+        try:
+            count = 0
+            msg = api_Consumer.poll(1.0)
+            if msg is None:
+                print("Waiting for message or event/error in poll()")
+                continue
+            elif msg.error():
+                print('error: {}'.format(msg.error()))
+                break
+            else:
+                # Check for Kafka message
+                record_value = msg.value()
+                data = json.loads(record_value)
+                subreddit = data['sub_reddit']
+                start_epoch = int(data['start_date'])
+                end_epoch = int(data['end_date'])
+                request_id = data['request_id']
+                for record in psaw_helper.get_pushshift_data(start_epoch, end_epoch, subreddit):
+                    count += 1
+                    text = record['title'] + "**&*" + record['selftext']
+                    sub = record['subreddit']
+                    url = record['url']
+                    id =record['id']
+                    Schema = {
+                        'id': id,
+                        'request_id': request_id,
+                        'title_text': text,
+                        'sub_reddit': sub,
+                        'url': url
+                    }
+                    to_be_recorded = json.dumps(Schema)
+                    raw_producer.produce(topic = producer_topic, key = id, value = to_be_recorded)
+                    print("record", record['title'], datetime.fromtimestamp(record['created_utc']), "appended", "\n")
+                print(count, "records were appended")
+                raw_producer.flush()
+        except KeyError:
             raw_producer.flush()
+            continue
 except KeyboardInterrupt:
-    pass
+    raw_producer.flush()
 
-
-getredditrawthread()
+#getredditrawthread()
